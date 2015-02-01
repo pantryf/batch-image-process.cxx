@@ -1,42 +1,27 @@
 /*
-ImageBHASA Colour Library, ImageBHASA Program's Colour Library File
-Subhajit Sahu, Copyright(c) 2011
-*/
+ * cpp-batch-image-process, image_colour.h
+ * Subhajit Sahu, Copyright(c) 2011
+ */
 
 
 #ifndef _image_colour_h_
+#define _image_colour_h_
 
-
+// required modules
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
 #include "common_string.h"
 #include "image_struct.h"
 #include "image_all.h"
 
 
-
-// Library declaration
-#define _image_colour_h_		loaded
-
-
-
-
-
-// Global variables
+// global data
 extern char *RAWdata;
 
 
-
-
-
-
-
-
-
-// Declarations
+// function declarations
 char* Black_And_White(char *params);
 char* Make_White_Transparent(char *params);
 char* Make_Black_Transparent(char *params);
@@ -51,24 +36,13 @@ char* Replace_Colours(char *params);
 char* Get_Colour(char *params);
 
 
-
-
-
-
-
-
-
-
-
-char* Black_And_White(char *params)
-	{
+char* Black_And_White(char *params) {
 	char *word, *msg;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	int Monochrome;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get source filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);;
@@ -82,8 +56,7 @@ char* Black_And_White(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
@@ -94,24 +67,16 @@ char* Black_And_White(char *params)
 		Pixels->Red = Colours.Red.Pixel;
 		Pixels->Green = Colours.Green.Pixel;
 		Pixels->Blue = Colours.Blue.Pixel;
-		}
-	
+	}
 	// Get dest. filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = SaveImage(word);
 	delete word;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-char* Make_White_Transparent(char *params)
-	{
+char* Make_White_Transparent(char *params) {
 	double ClrClose, ClrDistance;
 	char *word, *msg, *save, *style;
 	RGBpixel *Pixels;
@@ -119,24 +84,19 @@ char* Make_White_Transparent(char *params)
 	unsigned long *RawData;
 	int RgbSum, ClrSum, rdis, gdis, bdis;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);;
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	// Get dest. filename
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
-	
 	// Get Colour Closeness(number)
 	word = GetWordSym(params, "-.");
 	ClrClose = atof(word);
 	delete word;
-	
 	// Get Style
 	style = GetWordSym(params, "_");
-
 	// Make Ready
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
@@ -146,37 +106,28 @@ char* Make_White_Transparent(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	
 	// Select the style
 	// RGB_Sum
-	if(strcmpi(style, "RGB_Sum") == 0)
-		{
+	if(strcmpi(style, "RGB_Sum") == 0) {
 		RgbSum = (int)(ClrClose + 0.5);
-		for(i=0; i<Size; i++, Pixels++)
-			{
+		for(i=0; i<Size; i++, Pixels++) {
 			Colours.Red.Pixel = Pixels->Red;
 			Colours.Green.Pixel = Pixels->Green;
 			Colours.Blue.Pixel = Pixels->Blue;
 			ClrSum = 765 - (Colours.Red.Value + Colours.Green.Value + Colours.Blue.Value);
-			if(ClrSum <= RgbSum) 
-				{
+			if(ClrSum <= RgbSum) {
 				Colours.Red.Value = 255;
 				Colours.Green.Value = 255;
 				Colours.Blue.Value = 255;
 				Pixels->Red = Colours.Red.Pixel;
 				Pixels->Green = Colours.Green.Pixel;
 				Pixels->Blue = Colours.Blue.Pixel;
-				}
 			}
 		}
-
-
-
+	}
 	// RGB_Difference
-	else if(strcmpi(style, "RGB_Distance") == 0)
-		{
-		for(i=0; i<Size; i++, Pixels++)
-			{
+	else if(strcmpi(style, "RGB_Distance") == 0) {
+		for(i=0; i<Size; i++, Pixels++) {
 			Colours.Red.Pixel = Pixels->Red;
 			Colours.Green.Pixel = Pixels->Green;
 			Colours.Blue.Pixel = Pixels->Blue;
@@ -184,34 +135,24 @@ char* Make_White_Transparent(char *params)
 			gdis = 255 - Colours.Green.Value;
 			bdis = 255 - Colours.Blue.Value;
 			ClrDistance = sqrt((rdis*rdis) + (gdis*gdis) + (bdis*bdis));
-			if(ClrDistance <= ClrClose) 
-				{
+			if(ClrDistance <= ClrClose) {
 				Colours.Red.Value = 255;
 				Colours.Green.Value = 255;
 				Colours.Blue.Value = 255;
 				Pixels->Red = Colours.Red.Pixel;
 				Pixels->Green = Colours.Green.Pixel;
 				Pixels->Blue = Colours.Blue.Pixel;
-				}
 			}
 		}
-	
+	}
 	delete style;
 	msg = SaveImage(save);
 	delete save;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-
-char* Make_Black_Transparent(char *params)
-	{
+char* Make_Black_Transparent(char *params) {
 	double ClrClose, ClrDistance;
 	char *word, *msg, *save, *style;
 	RGBpixel *Pixels;
@@ -219,24 +160,19 @@ char* Make_Black_Transparent(char *params)
 	unsigned long *RawData;
 	int RgbSum, ClrSum, rdis, gdis, bdis;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);;
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	// Get dest. filename
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
-	
 	// Get Colour Closeness(number)
 	word = GetWordSym(params, "-.");
 	ClrClose = atof(word);
 	delete word;
-	
 	// Get Style
 	style = GetWordSym(params, "_");
-
 	// Make Ready
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
@@ -246,37 +182,28 @@ char* Make_Black_Transparent(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	
 	// Select the style
 	// RGB_Sum
-	if(strcmpi(style, "RGB_Sum") == 0)
-		{
+	if(strcmpi(style, "RGB_Sum") == 0) {
 		RgbSum = (int)(ClrClose + 0.5);
-		for(i=0; i<Size; i++, Pixels++)
-			{
+		for(i=0; i<Size; i++, Pixels++) {
 			Colours.Red.Pixel = Pixels->Red;
 			Colours.Green.Pixel = Pixels->Green;
 			Colours.Blue.Pixel = Pixels->Blue;
 			ClrSum = Colours.Red.Value + Colours.Green.Value + Colours.Blue.Value;
-			if(ClrSum <= RgbSum) 
-				{
+			if(ClrSum <= RgbSum) {
 				Colours.Red.Value = 255;
 				Colours.Green.Value = 255;
 				Colours.Blue.Value = 255;
 				Pixels->Red = Colours.Red.Pixel;
 				Pixels->Green = Colours.Green.Pixel;
 				Pixels->Blue = Colours.Blue.Pixel;
-				}
 			}
 		}
-
-
-
+	}
 	// RGB_Difference
-	else if(strcmpi(style, "RGB_Distance") == 0)
-		{
-		for(i=0; i<Size; i++, Pixels++)
-			{
+	else if(strcmpi(style, "RGB_Distance") == 0) {
+		for(i=0; i<Size; i++, Pixels++) {
 			Colours.Red.Pixel = Pixels->Red;
 			Colours.Green.Pixel = Pixels->Green;
 			Colours.Blue.Pixel = Pixels->Blue;
@@ -284,55 +211,41 @@ char* Make_Black_Transparent(char *params)
 			gdis = Colours.Green.Value;
 			bdis = Colours.Blue.Value;
 			ClrDistance = sqrt((rdis*rdis) + (gdis*gdis) + (bdis*bdis));
-			if(ClrDistance <= ClrClose) 
-				{
+			if(ClrDistance <= ClrClose) {
 				Colours.Red.Value = 255;
 				Colours.Green.Value = 255;
 				Colours.Blue.Value = 255;
 				Pixels->Red = Colours.Red.Pixel;
 				Pixels->Green = Colours.Green.Pixel;
 				Pixels->Blue = Colours.Blue.Pixel;
-				}
 			}
 		}
-	
+	}
 	delete style;
 	msg = SaveImage(save);
 	delete save;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-
-char* Brightness(char *params)
-	{
+char* Brightness(char *params) {
 	char *word, *msg, *save;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	int Brightness;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);;
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	// Get dest. filename
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
-	
 	// Get Brightness(number)
 	word = GetWordSym(params, "-.");
 	Brightness = atoi(word);
 	delete word;
-
 	// Make Ready
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
@@ -342,9 +255,7 @@ char* Brightness(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
@@ -360,46 +271,33 @@ char* Brightness(char *params)
 		Pixels->Red = Colours.Red.Pixel;
 		Pixels->Green = Colours.Green.Pixel;
 		Pixels->Blue = Colours.Blue.Pixel;
-		}
-
+	}
 	msg = SaveImage(save);
 	delete save;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-
-char* Contrast(char *params)
-	{
+char* Contrast(char *params) {
 	char *word, *msg, *save;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	int Contrast;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
-	msg = LoadImage(word);;
+	msg = LoadImage(word);
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	// Get dest. filename
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
-	
 	// Get Contrast(number)
 	word = GetWordSym(params, "-.");
 	Contrast = atoi(word);
 	if(Contrast < -256)Contrast = -256;
 	Contrast += 256;
 	delete word;
-
 	// Make Ready
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
@@ -409,9 +307,7 @@ char* Contrast(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
@@ -427,46 +323,33 @@ char* Contrast(char *params)
 		Pixels->Red = Colours.Red.Pixel;
 		Pixels->Green = Colours.Green.Pixel;
 		Pixels->Blue = Colours.Blue.Pixel;
-		}
-
+	}
 	msg = SaveImage(save);
 	delete save;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-
-char* Sine_Colour(char *params)
-	{
+char* Sine_Colour(char *params) {
 	char *word, *msg, *save;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	double SinePer;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);;
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	// Get dest. filename
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
-	
 	// Get Sine Percent(number)
 	word = GetWordSym(params, "-.");
 	SinePer = atof(word);
 	if(SinePer < 0.0)SinePer = 0.0;
 	if(SinePer > 100.0) SinePer = 100.0;
 	delete word;
-
 	// Make Ready
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
@@ -476,9 +359,7 @@ char* Sine_Colour(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
@@ -494,36 +375,24 @@ char* Sine_Colour(char *params)
 		Pixels->Red = Colours.Red.Pixel;
 		Pixels->Green = Colours.Green.Pixel;
 		Pixels->Blue = Colours.Blue.Pixel;
-		}
-
+	}
 	msg = SaveImage(save);
 	delete save;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-
-
-char* Negative(char *params)
-	{
+char* Negative(char *params) {
 	char *word, *msg;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get source filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);;
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	// Start
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
@@ -533,8 +402,7 @@ char* Negative(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
@@ -544,39 +412,28 @@ char* Negative(char *params)
 		Pixels->Red = Colours.Red.Pixel;
 		Pixels->Green = Colours.Green.Pixel;
 		Pixels->Blue = Colours.Blue.Pixel;
-		}
-	
+	}
 	// Get dest. filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = SaveImage(word);
 	delete word;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-
-char* Add_Colour(char *params)
-	{
+char* Add_Colour(char *params) {
 	char *word, *msg, *save;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	int AddRed, AddGreen, AddBlue;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get source filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);
 	delete word;
 	if(strlen(msg))return(msg);
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
-	
 	word = GetWord(params);
 	AddRed = atoi(word);
 	delete word;
@@ -586,7 +443,6 @@ char* Add_Colour(char *params)
 	word = GetWord(params);
 	AddBlue = atoi(word);
 	delete word;
-	
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
 	Colours.Blue.Value = 0;
@@ -595,8 +451,7 @@ char* Add_Colour(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
@@ -612,34 +467,25 @@ char* Add_Colour(char *params)
 		Pixels->Red = Colours.Red.Pixel;
 		Pixels->Green = Colours.Green.Pixel;
 		Pixels->Blue = Colours.Blue.Pixel;
-		}
-	
+	}
 	// Get dest. filename
 	msg = SaveImage(save);
 	delete save;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-char* Remove_Transparency(char *params)
-	{
+char* Remove_Transparency(char *params) {
 	char *word, *msg;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	unsigned long Xres, Yres, Size, i;
-	
 	// Get source filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);;
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
 	Colours.Blue.Value = 0;
@@ -648,52 +494,39 @@ char* Remove_Transparency(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
-		if((Colours.Red.Value == 255) && (Colours.Green.Value == 255) && (Colours.Blue.Value == 255))
-			{
+		if((Colours.Red.Value == 255) && (Colours.Green.Value == 255) && (Colours.Blue.Value == 255)) {
 			Colours.Red.Value = 254;
 			Colours.Green.Value = 254;
 			Colours.Blue.Value = 254;
 			Pixels->Red = Colours.Red.Pixel;
 			Pixels->Green = Colours.Green.Pixel;
 			Pixels->Blue = Colours.Blue.Pixel;
-			}
 		}
-	
+	}
 	// Get dest. filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = SaveImage(word);
 	delete word;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-
-char* Replace_Colour(char *params)
-	{
+char* Replace_Colour(char *params) {
 	char *word, *msg, *save;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	unsigned long Xres, Yres, Size, i;
 	int OldRed, OldGreen, OldBlue, NewRed, NewGreen, NewBlue;
-	
 	// Get source filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);;
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	word = GetWord(params);
 	OldRed = atoi(word);
@@ -713,7 +546,6 @@ char* Replace_Colour(char *params)
 	word = GetWord(params);
 	NewBlue = atoi(word);
 	delete word;
-	
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
 	Colours.Blue.Value = 0;
@@ -722,37 +554,27 @@ char* Replace_Colour(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
-		if((Colours.Red.Value == OldRed) && (Colours.Green.Value == OldGreen) && (Colours.Blue.Value == OldBlue))
-			{
+		if((Colours.Red.Value == OldRed) && (Colours.Green.Value == OldGreen) && (Colours.Blue.Value == OldBlue)) {
 			Colours.Red.Value = NewRed;
 			Colours.Green.Value = NewGreen;
 			Colours.Blue.Value = NewBlue;
 			Pixels->Red = Colours.Red.Pixel;
 			Pixels->Green = Colours.Green.Pixel;
 			Pixels->Blue = Colours.Blue.Pixel;
-			}
 		}
-	
+	}
 	// Get dest. filename
 	msg = SaveImage(save);
 	delete save;
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-
-char* Replace_Colours(char *params)
-	{
+char* Replace_Colours(char *params) {
 	char *word, *msg, *save;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
@@ -760,14 +582,12 @@ char* Replace_Colours(char *params)
 	unsigned long Xres, Yres, Size, i;
 	int OldRed, OldGreen, OldBlue, NewRed, NewGreen, NewBlue;
 	double OldPerStart, OldPerStop, NewPerStart, NewPerStop, PerRed, PerGreen, PerBlue, PerRatio, OldPer, t;
-	
 	// Get source filename
 	word = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(word);
 	printf("Source File: %s\n", word);
 	delete word;
 	if(strlen(msg))return(msg);
-	
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	printf("Dest File: %s\n", save);
 	word = GetWord(params);
@@ -804,18 +624,16 @@ char* Replace_Colours(char *params)
 	NewPerStop = atof(word);
 	delete word;
 	printf("NewRange:   %f%% - %f%%\n", NewPerStart, NewPerStop);
-	if(OldPerStop < OldPerStart)
-		{
+	if(OldPerStop < OldPerStart) {
 		t = OldPerStop;
 		OldPerStop = OldPerStart;
 		OldPerStart = t;
-		}
-	if(NewPerStop < NewPerStart)
-		{
+	}
+	if(NewPerStop < NewPerStart) {
 		t = NewPerStop;
 		NewPerStop = NewPerStart;
 		NewPerStart = t;
-		}
+	}
 	OldPerStart /= 100.0;
 	OldPerStop /= 100.0;
 	NewPerStart /= 100.0;
@@ -825,7 +643,6 @@ char* Replace_Colours(char *params)
 	printf("OldRange:   %f%% - %f%%\n", OldPerStart, OldPerStop);
 	printf("NewRange:   %f%% - %f%%\n", NewPerStart, NewPerStop);
 	printf("PerRatio: %f\n", PerRatio);
-	
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
 	Colours.Blue.Value = 0;
@@ -834,8 +651,7 @@ char* Replace_Colours(char *params)
 	Yres = RawData[1];
 	Size = Xres * Yres;
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	for(i=0; i<Size; i++, Pixels++)
-		{
+	for(i=0; i<Size; i++, Pixels++) {
 		Colours.Red.Pixel = Pixels->Red;
 		Colours.Green.Pixel = Pixels->Green;
 		Colours.Blue.Pixel = Pixels->Blue;
@@ -845,24 +661,21 @@ char* Replace_Colours(char *params)
 		OldPer = PerRed;
 		if(PerGreen < OldPer)OldPer = PerGreen;
 		if(PerBlue < OldPer)OldPer = PerBlue;
-		if((OldPer >= OldPerStart) && (OldPer <= OldPerStop))
-			{
+		if((OldPer >= OldPerStart) && (OldPer <= OldPerStop)) {
 			//printf("OldPer: %f\n", OldPer);
-			if(OldPerStop != OldPerStart)
-				{
+			if(OldPerStop != OldPerStart) {
 				PerRed = NewPerStart + (PerRed - OldPerStart) * PerRatio;
 				PerGreen = NewPerStart + (PerGreen - OldPerStart) * PerRatio;
 				PerBlue = NewPerStart + (PerBlue - OldPerStart) * PerRatio;
 				Colours.Red.Value = (int)((double)NewRed * PerRed);
 				Colours.Green.Value = (int)((double)NewGreen * PerGreen);
 				Colours.Blue.Value = (int)((double)NewBlue * PerBlue);
-				}
-			else
-				{
+			}
+			else {
 				Colours.Red.Value = (int)((double)NewRed * OldPer);
 				Colours.Green.Value = (int)((double)NewGreen * OldPer);
 				Colours.Blue.Value = (int)((double)NewBlue * OldPer);
-				}
+			}
 			if(Colours.Red.Value < 0)Colours.Red.Value = 0;
 			if(Colours.Green.Value < 0)Colours.Green.Value = 0;
 			if(Colours.Blue.Value < 0)Colours.Blue.Value = 0;
@@ -872,44 +685,34 @@ char* Replace_Colours(char *params)
 			Pixels->Red = Colours.Red.Pixel;
 			Pixels->Green = Colours.Green.Pixel;
 			Pixels->Blue = Colours.Blue.Pixel;
-			}
 		}
-	
+	}
 	// Get dest. filename
 	msg = SaveImage(save);
 	delete save;
 	//scanf("%c", &c);
 	return(msg);
-	}
+}
 
 
-
-
-
-
-
-char* Get_Colour(char *params)
-	{
+char* Get_Colour(char *params) {
 	FILE *file;
 	char *word, *msg, *save, *src;
 	RGBpixel *Pixels;
 	RGBcolour Colours;
 	unsigned long *RawData;
 	unsigned long Xres, Yres, Xpix, Ypix;
-	
 	// Get source filename
 	src = GetWordSym(params, "`~!@#$%^&-_+=.:");
 	msg = LoadImage(src);
 	if(strlen(msg))return(msg);
 	save = GetWordSym(params, "`~!@#$%^&-_+=.:");
-	
 	word = GetWord(params);
 	Xpix = atoi(word);
 	delete word;
 	word = GetWord(params);
 	Ypix = atoi(word);
 	delete word;
-	
 	Colours.Red.Value = 0;
 	Colours.Green.Value = 0;
 	Colours.Blue.Value = 0;
@@ -917,37 +720,32 @@ char* Get_Colour(char *params)
 	Xres = RawData[0];
 	Yres = RawData[1];
 	Pixels = (RGBpixel*)(RAWdata + 8);
-	if((Xpix >= Xres) || (Ypix >= Yres))
-		{
+	if((Xpix >= Xres) || (Ypix >= Yres)) {
 		delete src;
 		delete save;
 		return("The Pixel asked for, is not within this image");
-		}
+	}
 	Pixels += (Yres - Ypix - 1) * Xres + Xpix;
 	Colours.Red.Pixel = Pixels->Red;
 	Colours.Green.Pixel = Pixels->Green;
 	Colours.Blue.Pixel = Pixels->Blue;
 	file = fopen(save, "w");
 	delete save;
-	if(file == NULL)
-		{
+	if(file == NULL) {
 		delete src;
 		return("Cannot open File for saving Colour, probably low disk space");
-		}
+	}
 	fprintf(file, "Get Colour Information\n");
 	fprintf(file, "----------------------\n\n\n");
 	fprintf(file, "Image File: %s\n", src);
 	fprintf(file, "Pixel:      (%u, %u)\n", Xpix, Ypix);
 	fprintf(file, "Colour:     %d : %d : %d\n\n\n", Colours.Red.Value, Colours.Green.Value, Colours.Blue.Value);
-	
 	// Get dest. filename
 	fclose(file);
 	msg = SaveImage(src);
 	delete src;
 	return(msg);
-	}
-
-
+}
 
 
 // Decrease Colours - reduce to a set of  ? colours and to ? extent
@@ -956,18 +754,6 @@ char* Get_Colour(char *params)
 // Replace Colour group - replace ? range of colours with ? group of colours
 // Make Glow - create a glow effect to ? white range ? extent
 // Make Dark - make blacker parts ? range more dark ? extent
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #endif

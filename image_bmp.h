@@ -1,5 +1,5 @@
 /*
- * cpp-batch-image-process, common_string.h
+ * cpp-batch-image-process, image_bmp.h
  * Subhajit Sahu, Copyright(c) 2011
  */
 
@@ -193,8 +193,7 @@ char* Raw24BitBMP(FILE *file) {
 }
 
 
-char* BMP24BitRaw(FILE *file)
-	{
+char* BMP24BitRaw(FILE *file) {
 	int seekresult;
 	unsigned int byteswrote;
 	char *BMPdata;
@@ -215,51 +214,31 @@ char* BMP24BitRaw(FILE *file)
 	BMPdata = new char[DataSize];
 	SrcRowPtr = RAWdata + 8 + (BMPinfo.Yresolution - 1) * SrcRowSize;
 	DestRowPtr = BMPdata;
-	for(y=0; y<BMPinfo.Yresolution; y++)
-		{
+	for(y=0; y<BMPinfo.Yresolution; y++) {
 		memcpy(DestRowPtr, SrcRowPtr, SrcRowSize);
-		for(x=0; x<Padding; x++)
-			{
+		for(x=0; x<Padding; x++) {
 			DestRowPtr[SrcRowSize + x] = '\0';
-			}
+		}
 		SrcRowPtr -= SrcRowSize;
 		DestRowPtr += DestRowSize;
-		}
+	}
 
 	// Write Pixel Data to file
 	seekresult = fseek(file, BMPinfo.PtrToPixelData, SEEK_SET);
-	if(seekresult != 0)
-		{
+	if(seekresult != 0) {
 		delete BMPdata;
 		delete RAWdata;
 		return("You probably have LOW disk space");
-		}
-	byteswrote = fwrite(BMPdata, 1, DataSize, file);
-	if(byteswrote < DataSize)
-		{
-		delete BMPdata;
-		delete RAWdata;
-		return("You probably have LOW disk space");
-		}
-	delete BMPdata;
-	
-	return("");
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	byteswrote = fwrite(BMPdata, 1, DataSize, file);
+	if(byteswrote < DataSize) {
+		delete BMPdata;
+		delete RAWdata;
+		return("You probably have LOW disk space");
+	}
+	delete BMPdata;
+	return("");
+}
 
 
 #endif

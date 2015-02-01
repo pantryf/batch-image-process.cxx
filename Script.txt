@@ -1,2 +1,1 @@
 Black_And_White("calvin.bmp", "calvin0.bmp");
-

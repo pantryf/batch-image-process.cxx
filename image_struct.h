@@ -1,45 +1,32 @@
 /*
-ImageBHASA Structures Library, ImageBHASA Program's Structures Library File
-Subhajit Sahu, Copyright(c) 2011
-*/
+ * cpp-batch-image-process, image_struct.h
+ * Subhajit Sahu, Copyright(c) 2011
+ */
 
 
 #ifndef _image_struct_h_
-
-
-// Library declaration
-#define _image_struct_h_		loaded
-
+#define _image_struct_h_
 
 
 // Structures
-typedef struct fmtRGBpixel
-	{
+typedef struct fmtRGBpixel {
 	char Blue;
 	char Green;
 	char Red;
-	}RGBpixel;
+} RGBpixel;
 
 
-typedef union fmtColour
-	{
+typedef union fmtColour {
 	char Pixel;
 	int Value;
-	}Colour;
+} Colour;
 
 
-typedef struct fmtRGBcolour
-	{
+typedef struct fmtRGBcolour {
 	Colour Blue;
 	Colour Green;
 	Colour Red;
-	}RGBcolour;
-
-
-
-
-
-
+} RGBcolour;
 
 
 #endif
