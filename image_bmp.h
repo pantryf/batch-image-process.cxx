@@ -1,29 +1,22 @@
 /*
-ImageBHASA BMP Library, ImageBHASA Program's BMP Library File
-Subhajit Sahu, Copyright(c) 2011
-*/
-
+ * cpp-batch-image-process, common_string.h
+ * Subhajit Sahu, Copyright(c) 2011
+ */
 
 
 #ifndef _image_bmp_h_
+#define _image_bmp_h_
 
-
+// required modules
 #include <mem.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "common_string.h"
 #include "common_file.h"
 
-// Library declaration
-#define _image_bmp_h_		loaded
-
-
-
 
 // BMP file format
-typedef struct fmtBMPheader
-	{
+typedef struct fmtBMPheader {
 	char Identifier[2];
 	unsigned long FileSize;
 	unsigned long Reserved;
@@ -39,22 +32,17 @@ typedef struct fmtBMPheader
 	unsigned long YpixelsPerMetre;
 	unsigned long NumColoursUsed;
 	unsigned long NumImportantColours;
-	}BMPheader;
+} BMPheader;
 
 
-
-
-// Global variables
+// data
 extern char *FileExt;
 extern unsigned int FileType;
 extern char *RAWdata;
 BMPheader BMPinfo;
 
 
-
-
-
-// Declarations
+// function declarations
 char* LoadBMP(FILE *file);
 char* SaveBMP(FILE *file);
 char* Raw24BitBMP(FILE *file);
@@ -62,30 +50,17 @@ char* BMP24BitRaw(FILE *file);
 char* BMP_Info(char *params);
 
 
-
-
-
-
-
-
-
-
-
-
-char* BMP_Info(char *params)
-	{
+char* BMP_Info(char *params) {
 	FILE *file, *log;
 	char *word, *word2;
 	int seekstatus;
 	unsigned int bytesread;
-	
 	word = GetWordSym(params, "`~!@#$%^&-_+=.");
 	file = fopen(word, "rb");
-	if(file == NULL)
-		{
+	if(file == NULL) {
 		delete word;
 		return("Image file not found");
-      }
+    }
 	word2 = GetWordSym(params, "`~!@#$%^&-_+=.");
 	log = fopen(word2, "w");
 	seekstatus = fseek(file, 0, SEEK_SET);
@@ -116,19 +91,15 @@ char* BMP_Info(char *params)
 	fprintf(log, "----------------\n\n\n");
 	fclose(log);
 	fclose(file);
-	
 	return("");
-	}
-
+}
 
 
 // Loads a BMP file into Memory
-char* LoadBMP(FILE *file)
-	{
+char* LoadBMP(FILE *file) {
 	int seekstatus;
 	unsigned int bytesread;
 	char *result;
-	
 	// Now read the BMP header
 	seekstatus = fseek(file, 0, SEEK_SET);
 	if(seekstatus != 0)return("Cannot Read given file");
@@ -137,36 +108,25 @@ char* LoadBMP(FILE *file)
 	if((BMPinfo.Identifier[0] != 'B') || (BMPinfo.Identifier[1] != 'M'))return("The File is not a valid BMP file");
 	if(BMPinfo.Xresolution == 0)return("Weird, this BMP file has ZERO Width");
 	if(BMPinfo.Yresolution == 0)return("Weird, this BMP file has ZERO Height");
-	
 	// Try to understand the file, i.e., try to convert to RAW format
 	FileExt = "BMP";
-		// Try 24-bit BMP
-		result = Raw24BitBMP(file);
-		if(strlen(result) == 0) return(result);
+	// Try 24-bit BMP
+	result = Raw24BitBMP(file);
+	if(strlen(result) == 0) return(result);
 	
 	// Try failed
 	FileExt = "";
-	
 	return("Cannot understand the given BMP file");
-	}
-
-
-
-
-
-
+}
 
 
 // Save the BMP file from RAW format
-char* SaveBMP(FILE *file)
-	{
+char* SaveBMP(FILE *file) {
 	char *result;
-	
 	BMPinfo.Identifier[0] = 'B';
 	BMPinfo.Identifier[1] = 'M';
 	BMPinfo.Reserved = 0;
-	switch(FileType)
-		{
+	switch(FileType) {
 		// 24-bit BMP file
 		case 1:
 		BMPinfo.PtrToPixelData = 54;
@@ -184,34 +144,25 @@ char* SaveBMP(FILE *file)
 		fseek(file, 0, SEEK_SET);
 		fwrite(&BMPinfo, 1, sizeof(BMPheader), file);
 		return(result);
-		
-		}
-	return("Cannot save the BMP file in the given format");
 	}
-
-
-
-
+	return("Cannot save the BMP file in the given format");
+}
 
 
 // Create RAW data for 24-bit BMP file
-char* Raw24BitBMP(FILE *file)
-	{
+char* Raw24BitBMP(FILE *file) {
 	int seekresult;
 	unsigned int bytesread;
 	char *BMPdata;
 	unsigned long *RawData;
 	unsigned long SrcRowSize, DestRowSize, DataSize, Padding, y;
 	char *SrcRowPtr, *DestRowPtr;
-	
 	// Check for validity
 	if(BMPinfo.BitsPerPixel != 24)return("This BMP file is not a 24-bit BMP");
 	if(BMPinfo.CompressionMode != 0)return("This BMP file is compressed! Cant use that.");
-	
 	// Seek to pixel data
 	seekresult = fseek(file, BMPinfo.PtrToPixelData, SEEK_SET);
 	if(seekresult != 0)return("This BMP file is too small");
-	
 	// Load pixel data from file
 	DestRowSize = BMPinfo.Xresolution * 3;
 	Padding = (4 - (DestRowSize & 3)) & 3;
@@ -220,36 +171,26 @@ char* Raw24BitBMP(FILE *file)
 	BMPdata = new char[DataSize];
 	RAWdata = new char[(DestRowSize * BMPinfo.Yresolution) + 8];
 	bytesread = fread(BMPdata, 1, DataSize, file);
-	if(bytesread < DataSize)
-		{
+	if(bytesread < DataSize) {
 		delete BMPdata;
 		delete RAWdata;
 		return("The BMP file contains insufficient Pixel data");
-		}
-	
+	}
 	// Convert to RAW data
 	RawData = (unsigned long*)RAWdata;
 	RawData[0] = BMPinfo.Xresolution;
 	RawData[1] = BMPinfo.Yresolution;
 	SrcRowPtr = BMPdata;
 	DestRowPtr = RAWdata + 8 + (BMPinfo.Yresolution - 1) * DestRowSize;
-	for(y=0; y<BMPinfo.Yresolution; y++)
-		{
+	for(y=0; y<BMPinfo.Yresolution; y++) {
 		memcpy(DestRowPtr, SrcRowPtr, DestRowSize);
 		SrcRowPtr += SrcRowSize;
 		DestRowPtr -= DestRowSize;
-		}
+	}
 	delete BMPdata;
 	FileType = 1;
-	
 	return("");
-	}
-
-
-
-
-
-
+}
 
 
 char* BMP24BitRaw(FILE *file)
